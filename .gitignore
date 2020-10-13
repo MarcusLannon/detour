@@ -11,3 +11,7 @@ __pycache__/
 
 # Jupyter notebooks
 notebooks
+
+
+# Config
+conf.ini
