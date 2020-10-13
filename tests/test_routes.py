@@ -18,13 +18,13 @@ class TestRoute:
             TrackPoint(lat=1.0, lon=1.0)
         ]
         expected = {
-            "BL": (0.0, 0.0),
-            "BR": (0.0, 1.0),
-            "TL": (1.0, 0.0),
-            "TR": (1.0, 1.0)
+            "max_lat": 1.0,
+            "min_lat": 0.0,
+            "max_lon": 1.0,
+            "min_lon": 0.0
         }
         track = Route(track=Track(trkpts=trackpoints))
-        assert track.bounding_box == expected
+        assert track.bbox == expected
 
     @pytest.mark.skip("Refactoring needed")
     def test_interset_fail(self):
