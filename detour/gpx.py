@@ -19,7 +19,6 @@ class GPXParser:
         elif xml is not None and type(xml) != str:
             raise TypeError("Expected string or None")
 
-
     def _remove_namespace(self, xml):
         xml = re.sub(r"<gpx[^>]*>", "<gpx>", xml)
         return xml

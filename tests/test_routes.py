@@ -10,7 +10,7 @@ from detour.track import TrackPoint, Track
 class TestRoute:
 
     def test_create_route(self):
-        _route = Route()
+        _ = Route()
 
     def test_route_bounding_box(self):
         trackpoints = [
@@ -25,7 +25,3 @@ class TestRoute:
         }
         track = Route(track=Track(trkpts=trackpoints))
         assert track.bbox == expected
-
-    @pytest.mark.skip("Refactoring needed")
-    def test_interset_fail(self):
-        pass

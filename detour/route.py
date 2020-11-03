@@ -1,7 +1,7 @@
 from detour.track import Track
 
 
-class Route():
+class Route:
     def __init__(self, track=Track()):
         self.track = track
         self._get_bound_box()
@@ -25,6 +25,4 @@ class Route():
                 "min_lon": min_lon
             }
         else:
-            self.bounding_box = {}
-
-    
+            self.bbox = {}

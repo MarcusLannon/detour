@@ -62,3 +62,23 @@ class TestTrack:
         trackpoints = parser.extract_trackpoints()
         track = Track(trkpts=trackpoints)
         assert track == expected
+
+    def test_track_intersect_none(self):
+        track1 = Track(trkpts=[TrackPoint(0.0, 0.0, 0.0)])
+        track2 = Track(trkpts=[TrackPoint(1.0, 1.0, 1.0)])
+        assert track1.intersection(track2) == []
+
+    def test_track_intersect_one(self):
+        track1 = Track(trkpts=[TrackPoint(0.0, 0.0, 0.0)])
+        track2 = Track(trkpts=[TrackPoint(0.0, 0.0, 0.0)])
+        assert track1.intersection(track2) == [TrackPoint(0.0, 0.0, 0.0)]
+
+    def test_trackpoint_distance_from(self):
+        tp1 = TrackPoint(0.0, 0.0, 0.0)
+        tp2 = TrackPoint(1.0, 1.0, 0.0)
+        assert tp1.distance_from(tp2) == 157000.0
+
+    def test_track_intersect_close(self):
+        track1 = Track(trkpts=[TrackPoint(0.0, 0.0, 0.0)])
+        track2 = Track(trkpts=[TrackPoint(0.00001, 0.00001, 0.0)])
+        assert track1.intersection(track2) == [TrackPoint(0.0, 0.0, 0.0)]
