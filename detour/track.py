@@ -59,6 +59,7 @@ class Track:
         self.points.append(trkpt)
 
     def intersection(self, other):
+        # TODO: This is very slow, needs improvement
         intersect = []
         for pt1 in self.points:
             for pt2 in other.points:
