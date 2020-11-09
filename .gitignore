@@ -15,3 +15,7 @@ notebooks
 
 # Config
 config.py
+
+
+# vscode
+.vscode
