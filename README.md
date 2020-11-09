@@ -1,1 +1,2 @@
-Detour
+# Detour: Avoid closed roads before they ruin your ride.
+Detour is designed to help cyclists with route planning. Simply upload a route on the day you want to ride, and the app will pull real time traffic data to highlight any closed roads.
