@@ -2,11 +2,12 @@ import requests
 
 from detour.config import HERE_URL, KEY
 from detour.track import Track, TrackPoint
+from detour import polyline
 
 
 class TrafficAPI:
     def __init__(self, test=False):
-        """ If test is set to True then a dummy API key is used."""
+        """If test is set to True then a dummy API key is used."""
         self.traffic_items = []
         self.test = test
         self.base_url = HERE_URL
@@ -22,9 +23,11 @@ class TrafficAPI:
         else:
             return None
 
-    def set_params(self, bbox=None):
+    def set_params(self, corridor=None, bbox=None):
         self.params = {"apiKey": self.__key}
 
+        if corridor is not None:
+            self.params["corridor"] = corridor
         if bbox is not None:
             max_lat = bbox["max_lat"]
             min_lat = bbox["min_lat"]
@@ -38,18 +41,54 @@ class TrafficAPI:
         self.status_code = response.status_code
         self.json = response.json()
 
+    def _track_from_json(self, track_json):
+        track = Track()
+        for sec in track_json["routes"][0]["sections"]:
+            pts = polyline.decode(sec["polyline"])
+            for pt in pts:
+                track.append(TrackPoint(pt[0], pt[1]))
+        return track
+
+    def _get_route_api(self, origin, end):
+        params = {
+            "origin": origin,
+            "destination": end,
+            "return": "polyline",
+            "transportMode": "car",
+            "departureTime": "0000-01-01T00:00:00",
+            "apiKey": self.__key
+        }
+        url = "https://router.hereapi.com/v8/routes"
+        r = requests.get(url, params=params)
+        data = r.json()
+        return data
+
     def _extract_track(self, item):
-        """Turn the geo location data of an incident into a detour track"""
+        """Turn the geo location data of an incident into a detour track
+        The incident data only contains the origin and end point so the 
+        routing api is used to complete the track."""
         geoloc = item["LOCATION"]["GEOLOC"]
-
         origin = geoloc["ORIGIN"]
-        origin_tp = TrackPoint(lat=origin["LATITUDE"], lon=origin["LONGITUDE"])
-        track = Track(trkpts=[origin_tp])
-
         end = geoloc["TO"]
-        for pt in end:
-            track.append(TrackPoint(lat=pt["LATITUDE"], lon=pt["LONGITUDE"]))
 
+        origin_str = str(origin["LATITUDE"]) + "," + str(origin["LONGITUDE"])
+        end_str = str(end[0]["LATITUDE"]) + "," + str(end[0]["LONGITUDE"])
+        track_json = self._get_route_api(origin_str, end_str)
+        track = self._track_from_json(track_json)
+
+        return track
+
+    def _extract_track_legacy(self, item):
+        """Turn the geo location data of an incident into a detour track"""
+        track = Track()
+        shapes = item["LOCATION"]["GEOLOC"]["GEOMETRY"]["SHAPES"]["SHP"]
+        for shape in shapes:
+            points = shape["value"].split(" ")
+            for point in points:
+                lat, lon = point.split(",")  # Unpack the lat lon pairs
+                lat = float(lat)
+                lon = float(lon)
+                track.append(TrackPoint(lat, lon))
         return track
 
     def parse(self):

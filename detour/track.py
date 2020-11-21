@@ -2,7 +2,7 @@
 Classes and methods related to tracks. These are the core pieces that make
 up all routes and roads.
 """
-import geopy.distance
+import math
 from math import log10, floor
 
 
@@ -13,7 +13,7 @@ class TrackPoint:
         self.ele = ele
 
     def __repr__(self):
-        return "<TrackPoint lat=%d, lon=%d, ele=%d>" % (
+        return "<TrackPoint lat=%.2f, lon=%.2f, ele=%.2f>" % (
             self.lat, self.lon, self.ele)
 
     def __eq__(self, other):
@@ -31,15 +31,34 @@ class TrackPoint:
         else:
             return round(x, 2-int(floor(log10(x))))
 
+    def _calc_distance(self, origin, destination):
+        lat1, lon1 = origin
+        lat2, lon2 = destination
+        radius = 6371  # km
+
+        dlat = math.radians(lat2 - lat1)
+        dlon = math.radians(lon2 - lon1)
+        a = (
+            math.sin(dlat / 2) * math.sin(dlat / 2) +
+            math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
+            math.sin(dlon / 2) * math.sin(dlon / 2)
+        )
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        d = radius * c
+
+        return d*1000
+
     def distance_from(self, other):
         coord1 = (self.lat, self.lon)
         coord2 = (other.lat, other.lon)
-        distance = geopy.distance.distance(coord1, coord2).meters
+        distance = self._calc_distance(coord1, coord2)
         return self._round_3_sig(distance)
 
 
 class Track:
-    def __init__(self, trkpts=[]):
+    def __init__(self, trkpts=None):
+        if trkpts is None:
+            trkpts = []
         self.points = trkpts
 
     def __getitem__(self, key):

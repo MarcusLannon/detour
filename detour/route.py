@@ -5,6 +5,7 @@ class Route:
     def __init__(self, track=Track()):
         self.track = track
         self._get_bound_box()
+        self._get_corridor()
 
     def _get_bound_box(self):
         """The bounding box is the latitude/longitude box that 
@@ -26,3 +27,11 @@ class Route:
             }
         else:
             self.bbox = {}
+
+    def _get_corridor(self):
+        """The corridor is a route of latitude/longitude points and a width.
+        The width is fixed at 10 meters to ensure full road coverage."""
+        corridor = []
+        for pt in self.track:
+            corridor.append(f"{pt.lat},{pt.lon}")
+        self.corridor = ";".join(corridor) + ";10"

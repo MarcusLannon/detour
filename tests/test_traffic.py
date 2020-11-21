@@ -9,11 +9,6 @@ from detour.track import TrackPoint, Track
 FILE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-@pytest.fixture
-def bbox_basic():
-    return {"max_lat": 1.0, "min_lat": 0.0, "max_lon": 1.0, "min_lon": 0.0}
-
-
 class TestTrafficAPI:
     def test_create_api_handler(self):
         _ = traffic.TrafficAPI()
@@ -33,17 +28,37 @@ class TestTrafficAPI:
         api.set_params()
         assert api.params == {"apiKey": "APIKEY"}
 
-    def test_set_params_bbox(self, bbox_basic):
+    def test_set_params_corridor(self):
+        expected = {"corridor": "0.0,0.0;1.0,1.0;10", "apiKey": "APIKEY"}
+        test_corridor = "0.0,0.0;1.0,1.0;10"
         api = traffic.TrafficAPI(test=True)
-        api.set_params(bbox=bbox_basic)
-        assert api.params == {"bbox": "1.0,0.0;0.0,1.0", "apiKey": "APIKEY"}
+        api.set_params(corridor=test_corridor)
+        assert api.params == expected
 
-    def test_api_ping(self, bbox_basic):
+    def test_api_ping(self):
         api = traffic.TrafficAPI(test=True)
-        api.set_params(bbox=bbox_basic)
+        api.set_params()
         api.get()
         assert api.status_code == 401
 
+    def test_track_from_shape(self):
+        expected = Track(trkpts=[TrackPoint(0.0, 3.0), TrackPoint(1.0, 2.0)])
+        data = {"LOCATION": {"GEOLOC": {"GEOMETRY": {"SHAPES": {"SHP": [
+                {"value": "0.0,3.0 1.0,2.0"}
+            ]}}}}}
+        api = traffic.TrafficAPI(test=True)
+        assert api._extract_track_legacy(data) == expected
+
+    def test_extract_track(self):
+        expected = Track(trkpts=[
+                TrackPoint(51.29776, -0.11156),
+                TrackPoint(51.29774, -0.11123)
+            ])
+        data = {"routes": [{"sections": [{"polyline": "BFgjj5Jn5VDiC"}]}]}
+        api = traffic.TrafficAPI(test=True)
+        assert api._track_from_json(data) == expected
+
+    @pytest.mark.skip("Refactoring needed for this test")
     def test_parse_json(self):
         trkpts = [TrackPoint(lat=50, lon=0), TrackPoint(lat=51, lon=-1)]
         expected = [{
