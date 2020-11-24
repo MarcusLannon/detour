@@ -1,6 +1,3 @@
-import datetime
-from xml.etree import ElementTree as ET
-
 import pytest
 
 from detour import gpx
@@ -37,6 +34,11 @@ class TestTrack:
     def test_track_len(self):
         track = Track(trkpts=[TrackPoint()])
         assert len(track) == 1
+
+    def test_track_remove(self):
+        track = Track([TrackPoint()])
+        track.remove(TrackPoint())
+        assert track.points == []
 
     def test_track_iter(self):
         track = Track(trkpts=[TrackPoint()])

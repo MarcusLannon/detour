@@ -77,6 +77,9 @@ class Track:
     def append(self, trkpt):
         self.points.append(trkpt)
 
+    def remove(self, trkpt):
+        self.points.remove(trkpt)
+
     def intersection(self, other):
         # TODO: This is very slow, needs improvement
         intersect = []
@@ -84,4 +87,8 @@ class Track:
             for pt2 in other.points:
                 if pt1.distance_from(pt2) < 10.0:
                     intersect.append(pt1)
+                if pt1.distance_from(pt2) > 5*1000.0 and len(intersect) == 0:
+                    # If other track is over 10km from route point and
+                    # there is no intersection then skip rest of route.
+                    break
         return intersect
