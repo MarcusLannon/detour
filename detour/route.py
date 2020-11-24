@@ -59,4 +59,24 @@ class Route:
         self.flags = []
         for item in self.incidents:
             inter = self.track.intersection(item["track"])
-            self.flags.append(Track(trkpts=inter))
+            if len(inter) > 0:
+                flag = item.copy()
+                flag["route_intersection"] = Track(inter)
+                self.flags.append(flag)
+
+    def display_inline(self):
+        if len(self.flags) == 0:
+            print("No closed roads detected, enjoy!")
+        else:
+            print("Closed roads detected...")
+            for flag in self.flags:
+                print("-"*24)
+                start = flag["route_intersection"][0]
+                end = flag["route_intersection"][-1]
+                desc = flag["description"].title()
+                message = "From {},{} to {},{} there is {}.".format(
+                    start.lat, start.lon, end.lat, end.lon, desc
+                )
+                print(message)
+                print("Details:", flag["details"])
+                print("Road Closed:", flag["road_closed"])

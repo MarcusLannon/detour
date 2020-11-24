@@ -45,12 +45,13 @@ class TestRoute:
             "track": test_track,
             "traffic_item_id": 1,
             "description": "ROAD_CLOSURE",
-            "road_closed": True
+            "road_closed": True,
+            "route_intersection": test_track
         }]
         test_route = Route(track=test_track)
         test_route.incidents = test_incidents
         test_route.find_flags()
-        assert test_route.flags == [test_track]
+        assert test_route.flags == test_incidents
 
     def test_reduce_points(self):
         expected = Track([
