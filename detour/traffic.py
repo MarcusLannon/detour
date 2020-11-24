@@ -65,7 +65,7 @@ class TrafficAPI:
 
     def _extract_track(self, item):
         """Turn the geo location data of an incident into a detour track
-        The incident data only contains the origin and end point so the 
+        The incident data only contains the origin and end point so the
         routing api is used to complete the track."""
         geoloc = item["LOCATION"]["GEOLOC"]
         origin = geoloc["ORIGIN"]
@@ -78,7 +78,7 @@ class TrafficAPI:
 
         return track
 
-    def _extract_track_legacy(self, item):
+    def _extract_track_legacy(self, item):  # TODO: REMOVE
         """Turn the geo location data of an incident into a detour track"""
         track = Track()
         shapes = item["LOCATION"]["GEOLOC"]["GEOMETRY"]["SHAPES"]["SHP"]
