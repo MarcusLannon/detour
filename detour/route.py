@@ -1,4 +1,5 @@
 from detour.track import Track
+from detour.traffic import TrafficAPI
 
 
 class Route:
@@ -26,7 +27,7 @@ class Route:
                 "min_lon": min_lon
             }
         else:
-            self.bbox = {}
+            self.bbox = None
 
     def _get_corridor(self):
         """The corridor is a route of latitude/longitude points and a width.
@@ -35,3 +36,27 @@ class Route:
         for pt in self.track:
             corridor.append(f"{pt.lat},{pt.lon}")
         self.corridor = ";".join(corridor) + ";10"
+
+    def reduce_points(self):
+        """Reduce the number of points in the route by deduping pairwise any
+        that are within 5 meters of eachother."""
+        # TODO: Make this more effective by expanding beyond pairwise
+        for i in range(len(self.track)):
+            first = i
+            second = i+1
+            if second < len(self.track):
+                pt1 = self.track[first]
+                pt2 = self.track[second]
+                if pt1.distance_from(pt2) < 5.0:
+                    self.track.remove(pt2)
+
+    def _get_incidents(self):
+        api = TrafficAPI()
+        api.set_params(bbox=self.bbox)
+        self.incidents = api.get_incidents()
+
+    def find_flags(self):
+        self.flags = []
+        for item in self.incidents:
+            inter = self.track.intersection(item["track"])
+            self.flags.append(Track(trkpts=inter))
