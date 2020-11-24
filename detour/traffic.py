@@ -91,9 +91,13 @@ class TrafficAPI:
                 track.append(TrackPoint(lat, lon))
         return track
 
+    def _extract_details(self, item):
+        td = item["TRAFFIC_ITEM_DESCRIPTION"]
+        details = [det["value"] for det in td if det["TYPE"] == "desc"][0]
+        return details
+
     def parse(self):
-        """ Method to parse all items out of the response json
-        """
+        """ Method to parse all items out of the response json."""
         if self.json.get("TRAFFIC_ITEMS"):
             traffic_items_json = self.json["TRAFFIC_ITEMS"]["TRAFFIC_ITEM"]
         else:
@@ -105,6 +109,7 @@ class TrafficAPI:
             ti["traffic_item_id"] = item["TRAFFIC_ITEM_ID"]
             ti["description"] = item["TRAFFIC_ITEM_TYPE_DESC"]
             ti["road_closed"] = item["TRAFFIC_ITEM_DETAIL"]["ROAD_CLOSED"]
+            ti["details"] = item["TRAFFIC_ITEM_DESCRIPTION"][0]["value"]
             self.traffic_items.append(ti)
 
     def get_incidents(self):

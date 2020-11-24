@@ -44,8 +44,8 @@ class TestTrafficAPI:
     def test_track_from_shape(self):
         expected = Track(trkpts=[TrackPoint(0.0, 3.0), TrackPoint(1.0, 2.0)])
         data = {"LOCATION": {"GEOLOC": {"GEOMETRY": {"SHAPES": {"SHP": [
-                {"value": "0.0,3.0 1.0,2.0"}
-            ]}}}}}
+            {"value": "0.0,3.0 1.0,2.0"}
+        ]}}}}}
         api = traffic.TrafficAPI(test=True)
         assert api._extract_track_legacy(data) == expected
 
@@ -57,6 +57,16 @@ class TestTrafficAPI:
         data = {"routes": [{"sections": [{"polyline": "BFgjj5Jn5VDiC"}]}]}
         api = traffic.TrafficAPI(test=True)
         assert api._track_from_json(data) == expected
+
+    def test_extract_description(self):
+        expected = "test description"
+        data = {"TRAFFIC_ITEM_DESCRIPTION": [{
+                    "value": "test description",
+                    "TYPE": "desc"
+                }]}
+        api = traffic.TrafficAPI(test=True)
+        details = api._extract_details(data)
+        assert details == expected
 
     @pytest.mark.skip("Refactoring needed for this test")
     def test_parse_json(self):
