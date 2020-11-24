@@ -106,3 +106,8 @@ class TrafficAPI:
             ti["description"] = item["TRAFFIC_ITEM_TYPE_DESC"]
             ti["road_closed"] = item["TRAFFIC_ITEM_DETAIL"]["ROAD_CLOSED"]
             self.traffic_items.append(ti)
+
+    def get_incidents(self):
+        self.get()
+        self.parse()
+        return self.traffic_items
