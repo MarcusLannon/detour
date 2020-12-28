@@ -15,7 +15,8 @@ class GPXParser:
             self.raw = self._remove_namespace(xml)
             self.root = ET.fromstring(self.raw)
             self._extract_track_root()
-            self._extract_track_meta()
+            # TODO: make metadata extraction more generic
+            #self._extract_track_meta()
         elif xml is not None and type(xml) != str:
             raise TypeError("Expected string or None")
 
