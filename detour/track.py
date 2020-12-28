@@ -84,11 +84,11 @@ class Track:
         # TODO: This is very slow, needs improvement
         intersect = []
         for pt1 in self.points:
-            for pt2 in other.points:
+            for pt2 in other:
                 if pt1.distance_from(pt2) < 10.0:
                     intersect.append(pt1)
                 if pt1.distance_from(pt2) > 5*1000.0 and len(intersect) == 0:
                     # If other track is over 10km from route point and
-                    # there is no intersection then skip rest of route.
+                    # there is no intersection then skip rest of the route.
                     break
         return intersect
