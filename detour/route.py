@@ -9,7 +9,7 @@ class Route:
         self._get_corridor()
 
     def _get_bound_box(self):
-        """The bounding box is the latitude/longitude box that 
+        """The bounding box is the latitude/longitude box that
         contains the entire route. This is defined by the lat lon
         of the top-left and bottom-right corners:
         bbox = top,left;bottom,right
@@ -71,8 +71,7 @@ class Route:
             print("Closed roads detected...")
             for flag in self.flags:
                 print("-"*24)
-                start = flag["route_intersection"][0]
-                end = flag["route_intersection"][-1]
+                start, *mid, end = flag["route_intersection"]
                 desc = flag["description"].title()
                 message = "From {},{} to {},{} there is {}.".format(
                     start.lat, start.lon, end.lat, end.lon, desc
