@@ -1,0 +1,13 @@
+{% extends "home.html" %}
+{% block incidents %}
+{% if is_incidents %}
+<p>Uh-oh! Looks like there are some closed roads.</p>
+<ul class="list-group">
+    {% for incident in incidents %}
+        <li class="list-group-item">{{ incident["details"] }}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No closed roads detected, enjoy!</p>
+{% endif %}
+{% endblock %}

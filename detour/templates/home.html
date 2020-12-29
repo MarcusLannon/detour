@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block home %}
+<form method="post" enctype="multipart/form-data">
+    <div class="form-group bg-light bg-gradient">
+        <label for="fileUpload">Input your route</label>
+        <input type="file" class="form-control-file" id="fileUpload" name="file">
+    </div>
+    <button type="submit" class="btn btn-primary" value="Upload">Submit</button>
+</form>
+{% block incidents %}{% endblock %}
+{% endblock %}
