@@ -6,6 +6,7 @@ from detour.gpx import GPXParser
 from detour.track import Track
 
 
+# TODO: This needs to be productionised
 def main(gpx_path):
     with open(gpx_path, "r") as f:
         data = f.read()
@@ -16,3 +17,4 @@ def main(gpx_path):
     route._get_incidents()
     route.find_flags()
     route.display_inline()
+    return route.flags
