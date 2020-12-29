@@ -19,3 +19,6 @@ config.py
 
 # vscode
 .vscode
+
+# temp folders
+temp/
