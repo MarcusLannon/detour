@@ -6,26 +6,14 @@ from detour import polyline
 
 
 class TrafficAPI:
-    def __init__(self, test=False):
+    def __init__(self):
         """If test is set to True then a dummy API key is used."""
         self.traffic_items = []
-        self.test = test
         self.base_url = HERE_URL
-        if not test:
-            self.__key = KEY
-        else:
-            self.__key = "APIKEY"
-
-    @property
-    def key(self):
-        if self.test:
-            return self.__key
-        else:
-            return None
+        self.__key = KEY
 
     def set_params(self, corridor=None, bbox=None):
         self.params = {"apiKey": self.__key}
-
         if corridor is not None:
             self.params["corridor"] = corridor
         if bbox is not None:
@@ -97,7 +85,7 @@ class TrafficAPI:
         return details
 
     def parse(self):
-        """ Method to parse all items out of the response json."""
+        """Method to parse all items out of the response json."""
         if self.json.get("TRAFFIC_ITEMS"):
             traffic_items_json = self.json["TRAFFIC_ITEMS"]["TRAFFIC_ITEM"]
         else:

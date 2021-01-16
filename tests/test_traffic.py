@@ -5,6 +5,7 @@ import json
 import os
 from detour import traffic
 from detour.track import TrackPoint, Track
+from detour.config import HERE_URL
 
 
 FILE_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -27,34 +28,36 @@ class MockResponse:
 
 class TestTrafficAPI:
     def test_create_api_handler(self):
-        _ = traffic.TrafficAPI()
-
-    def test_api_config(self):
-        api = traffic.TrafficAPI(test=True)
-        url = "https://traffic.ls.hereapi.com/traffic/6.3/incidents.json"
-        assert api.base_url == url
-        assert api.key == "APIKEY"
-
-    def test_read_api_key(self):
-        api = traffic.TrafficAPI(test=False)
-        assert api.key is None
+        api = traffic.TrafficAPI()
+        assert api.base_url == HERE_URL
 
     def test_set_params_key_only(self):
-        api = traffic.TrafficAPI(test=True)
+        api = traffic.TrafficAPI()
+        api._TrafficAPI__key = "APIKEY"
         api.set_params()
         assert api.params == {"apiKey": "APIKEY"}
 
     def test_set_params_corridor(self):
         expected = {"corridor": "0.0,0.0;1.0,1.0;10", "apiKey": "APIKEY"}
         test_corridor = "0.0,0.0;1.0,1.0;10"
-        api = traffic.TrafficAPI(test=True)
+        api = traffic.TrafficAPI()
+        api._TrafficAPI__key = "APIKEY"
         api.set_params(corridor=test_corridor)
+        assert api.params == expected
+
+    def test_set_params_bbox(self):
+        expected = {"bbox": "1.0,0.0;0.0,1.0", "apiKey": "APIKEY"}
+        test_bbox = dict(max_lat="1.0", max_lon="1.0",
+                         min_lat="0.0", min_lon="0.0")
+        api = traffic.TrafficAPI()
+        api._TrafficAPI__key = "APIKEY"
+        api.set_params(bbox=test_bbox)
         assert api.params == expected
 
     @patch("detour.traffic.requests.get")
     def test_api_get(self, mock_get):
         mock_get.return_value = MockResponse(json="{ok}", status_code=200)
-        api = traffic.TrafficAPI(test=True)
+        api = traffic.TrafficAPI()
         api.params = None
         api.get()
         assert api.status_code == 200
@@ -65,7 +68,7 @@ class TestTrafficAPI:
         data = {"LOCATION": {"GEOLOC": {"GEOMETRY": {"SHAPES": {"SHP": [
             {"value": "0.0,3.0 1.0,2.0"}
         ]}}}}}
-        api = traffic.TrafficAPI(test=True)
+        api = traffic.TrafficAPI()
         assert api._extract_track_legacy(data) == expected
 
     def test_extract_track(self):
@@ -74,7 +77,7 @@ class TestTrafficAPI:
                 TrackPoint(51.29774, -0.11123)
             ])
         data = {"routes": [{"sections": [{"polyline": "BFgjj5Jn5VDiC"}]}]}
-        api = traffic.TrafficAPI(test=True)
+        api = traffic.TrafficAPI()
         assert api._track_from_json(data) == expected
 
     def test_extract_description(self):
@@ -83,7 +86,7 @@ class TestTrafficAPI:
                     "value": "test description",
                     "TYPE": "desc"
                 }]}
-        api = traffic.TrafficAPI(test=True)
+        api = traffic.TrafficAPI()
         details = api._extract_details(data)
         assert details == expected
 
