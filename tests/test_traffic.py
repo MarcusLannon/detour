@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import patch
 
 import json
 import os
@@ -7,6 +8,21 @@ from detour.track import TrackPoint, Track
 
 
 FILE_DIR = os.path.dirname(os.path.realpath(__file__))
+
+
+class MockResponse:
+    """Mock object for testing responses to get requests without calling
+    requests.get itself.
+    """
+    def __init__(self, json, status_code):
+        self.status_code = status_code
+        self.json_str = json
+
+    def json(self):
+        """The json method must be called as a function to match actual
+        response object
+        """
+        return self.json_str
 
 
 class TestTrafficAPI:
@@ -35,11 +51,14 @@ class TestTrafficAPI:
         api.set_params(corridor=test_corridor)
         assert api.params == expected
 
-    def test_api_ping(self):
+    @patch("detour.traffic.requests.get")
+    def test_api_get(self, mock_get):
+        mock_get.return_value = MockResponse(json="{ok}", status_code=200)
         api = traffic.TrafficAPI(test=True)
-        api.set_params()
+        api.params = None
         api.get()
-        assert api.status_code == 401
+        assert api.status_code == 200
+        assert api.json == "{ok}"
 
     def test_track_from_shape(self):
         expected = Track(trkpts=[TrackPoint(0.0, 3.0), TrackPoint(1.0, 2.0)])
