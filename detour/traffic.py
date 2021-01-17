@@ -7,8 +7,6 @@ from detour import polyline
 
 class TrafficAPI:
     def __init__(self):
-        """If test is set to True then a dummy API key is used."""
-        self.traffic_items = []
         self.base_url = HERE_URL
         self.__key = KEY
 
@@ -80,7 +78,7 @@ class TrafficAPI:
             traffic_items_json = data["TRAFFIC_ITEMS"]["TRAFFIC_ITEM"]
         else:
             traffic_items_json = []
-
+        traffic_items = []
         for item in traffic_items_json:
             ti = {}
             ti["track"] = self._extract_track(item)
@@ -88,7 +86,8 @@ class TrafficAPI:
             ti["description"] = item["TRAFFIC_ITEM_TYPE_DESC"]
             ti["road_closed"] = item["TRAFFIC_ITEM_DETAIL"]["ROAD_CLOSED"]
             ti["details"] = item["TRAFFIC_ITEM_DESCRIPTION"][0]["value"]
-            self.traffic_items.append(ti)
+            traffic_items.append(ti)
+        return traffic_items
 
     def get_incidents(self):
         data = self.get()
