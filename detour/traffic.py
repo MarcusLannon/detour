@@ -27,7 +27,7 @@ class TrafficAPI:
     def get(self):
         response = requests.get(self.base_url, params=self.params)
         self.status_code = response.status_code
-        self.json = response.json()
+        return response.json()
 
     def _track_from_json(self, track_json):
         track = Track()
@@ -37,7 +37,10 @@ class TrafficAPI:
                 track.append(TrackPoint(pt[0], pt[1]))
         return track
 
-    def _get_route_api(self, origin, end):
+    def _get_full_route(self, origin, end):
+        """Call the HERE routing API with the start and end points
+        of the closed road to produce the full polyline. Time is
+        set to year 0 so no diversions are suggested."""
         params = {
             "origin": origin,
             "destination": end,
@@ -61,22 +64,9 @@ class TrafficAPI:
 
         origin_str = str(origin["LATITUDE"]) + "," + str(origin["LONGITUDE"])
         end_str = str(end[0]["LATITUDE"]) + "," + str(end[0]["LONGITUDE"])
-        track_json = self._get_route_api(origin_str, end_str)
+        track_json = self._get_full_route(origin_str, end_str)
         track = self._track_from_json(track_json)
 
-        return track
-
-    def _extract_track_legacy(self, item):  # TODO: REMOVE
-        """Turn the geo location data of an incident into a detour track"""
-        track = Track()
-        shapes = item["LOCATION"]["GEOLOC"]["GEOMETRY"]["SHAPES"]["SHP"]
-        for shape in shapes:
-            points = shape["value"].split(" ")
-            for point in points:
-                lat, lon = point.split(",")  # Unpack the lat lon pairs
-                lat = float(lat)
-                lon = float(lon)
-                track.append(TrackPoint(lat, lon))
         return track
 
     def _extract_details(self, item):
@@ -84,10 +74,10 @@ class TrafficAPI:
         details = [det["value"] for det in td if det["TYPE"] == "desc"][0]
         return details
 
-    def parse(self):
+    def parse(self, data):
         """Method to parse all items out of the response json."""
-        if self.json.get("TRAFFIC_ITEMS"):
-            traffic_items_json = self.json["TRAFFIC_ITEMS"]["TRAFFIC_ITEM"]
+        if data.get("TRAFFIC_ITEMS"):
+            traffic_items_json = data["TRAFFIC_ITEMS"]["TRAFFIC_ITEM"]
         else:
             traffic_items_json = []
 
@@ -101,6 +91,6 @@ class TrafficAPI:
             self.traffic_items.append(ti)
 
     def get_incidents(self):
-        self.get()
-        self.parse()
-        return self.traffic_items
+        data = self.get()
+        traffic_items = self.parse(data)
+        return traffic_items
